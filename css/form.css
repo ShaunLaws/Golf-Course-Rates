@@ -1,0 +1,28 @@
+/**
+ * Node Form CSS
+ * @todo make this look nicer on the form
+ */
+form#node-form div.golf-course-rates-widget {
+  border-bottom: 1px #CCC solid;
+  margin-bottom: 5px;
+  min-height:140px;
+}
+
+form#node-form div.golf-course-rates-widget .form-item {
+  margin:0 0 0 10px;
+  float:left;
+}
+
+form#node-form div.golf-course-rates-widget label {
+  font-size:10px;
+}
+
+form#node-form h4.golf-course-rates-widget-title {
+  color: #02C4D0;
+  clear:both;
+}
+
+form#node-form input.golf-course-rate-widget-date-range,
+form#node-form input.golf-course-rate-widget-rate {
+  width:100px !important;
+}

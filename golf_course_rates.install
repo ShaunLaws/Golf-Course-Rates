@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * @name _property_rates_notify()
+ * Common function for notifying the content module of this module's existence
+ */
+function _golf_course_rates_notify( $op = 'enable' ) {
+
+  drupal_load( 'module', 'content' );
+  content_notify( $op, 'golf_course_rates' );
+
+}
+
+/**
+ * Implementation of hook_install.
+ */
+function golf_course_rates_install() {
+
+  _golf_course_rates_notify( 'install' );
+
+  drupal_set_message( t('Golf Course Rates Module has installed successfully. Please see README.txt for more information on this module.') );
+
+}
+
+/**
+ * Implementation of hook_uninstall.
+ */
+function golf_course_rates_uninstall() {
+
+  _golf_course_rates_notify( 'uninstall' );
+
+  drupal_set_message( t('Golf Course Rates Module uninstalled successfully. You have not deleted any content, this has to be performed on your own.') );
+
+}
+
+/**
+ * Implementation of hook_enable.
+ */
+function golf_course_rates_enable() {
+
+  _golf_course_rates_notify( 'enable' );
+
+  drupal_set_message( t('Golf Course Rates Module has been enabled successfully.') );
+
+}
+
+/**
+ * Implementation of hook_disable.
+ */
+function golf_course_rates_disable() {
+
+  _golf_course_rates_notify( 'disable' );
+
+  drupal_set_message( t('Golf Course Rates Module has been disabled successfully.') );
+
+}

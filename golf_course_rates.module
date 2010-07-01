@@ -1,0 +1,261 @@
+<?php
+/**
+ * Golf Course Rates
+ * Adds a custom CCK widget for Golf Course Rates, and allows for full views integration
+ */
+
+define( "GOLF_COURSE_RATES_MODULE_PATH", drupal_get_path( 'module', 'golf_course_rates' ) );
+
+/**
+ * Hook Theme
+ */
+function golf_course_rates_theme() {
+
+	return array (
+    //Module Theme via tpl
+		'golf_course_rates_display' => array (
+      'path'      => GOLF_COURSE_RATES_MODULE_PATH,
+      'template'  => 'theme/golf_course_rates_display',
+			'arguments' => array( 'date_range'=> NULL, 'rate'=> NULL )
+		),
+    //CCK theme formatters.
+    'golf_course_rates_formatter_default' => array(
+      'arguments' => array( 'element' => NULL )
+    ),
+    'golf_course_rates' => array(
+      'arguments' => array( 'element' => NULL )
+    )
+	);
+
+}
+
+//==========================================//
+// CONTENT FIELD WIDGET (CCK)
+//==========================================//
+
+/**
+ * Implementation of hook_field_info().
+ */
+function golf_course_rates_field_info() {
+
+  return array(
+    'golf_course_rates' => array(
+      'label'       => t('Golf Course Rate Field'),
+      'description' => t('Stores a compound field that has Date Range and Rate elements.')
+    )
+  );
+
+}
+
+/**
+ * Implementation of hook_field_settings().
+ */
+function golf_course_rates_field_settings( $op, $field ) {
+
+  switch ( $op ) {
+
+    case 'database columns':
+      return array(
+        'date_range'    => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
+        'rate'          => array( 'type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => FALSE, 'views' => FALSE ),
+      );
+
+  }
+
+}
+
+/**
+ * Implementation of hook_content_is_empty().
+ */
+function golf_course_rates_content_is_empty( $item, $field ) {
+
+  if ( empty( $item['date_range'] )) {
+
+    return TRUE;
+
+  }
+
+  return FALSE;
+
+}
+
+/**
+ * Implementation of hook_field_formatter_info().
+ */
+function golf_course_rates_field_formatter_info() {
+
+  return array(
+    'default' => array(
+      'label'           => t('Default'),
+      'field types'     => array('golf_course_rates'),
+      'multiple values' => CONTENT_HANDLE_CORE
+    )
+  );
+
+}
+
+/**
+ * Theme function for 'default' example field formatter.
+ *
+ * $element['#item']: the sanitized $delta value for the item,
+ * $element['#field_name']: the field name,
+ * $element['#type_name']: the $node->type,
+ * $element['#formatter']: the $formatter_name,
+ * $element'#node']: the $node,
+ * $element['#delta']: the delta of this item, like '0',
+ *
+ */
+function theme_golf_course_rates_formatter_default( $element ) {
+
+  //krumo( $element );
+
+  if ( !empty( $element['#item']['date_range'] ) ) { //If we don't have a legitimate rate, then don't do it!
+
+    return theme( 'golf_course_rates_display',
+                 $element['#item']['date_range'],
+                 $element['#item']['rate']);
+  }
+
+}
+
+/**
+ * FAPI theme for an individual widget from the individual element.
+ */
+function theme_golf_course_rates( $element ) {
+
+  $output = '<div class="golf-course-rates-widget">';
+  $output .= '<h4 class="golf-course-rates-widget-title">Date Ranges and Rates</h4>';
+  $output .= theme( 'textfield', $element['date_range'] );
+  $output .= theme( 'textfield', $element['rate'] );
+  $output .= '</div>';
+
+  return $output;
+
+}
+
+/**
+ * Implementation of FAPI hook_elements().
+ *
+ * Any FAPI callbacks needed for individual widgets can be declared here,
+ * and the element will be passed to those callbacks for processing.
+ *
+ * Drupal will automatically theme the element using a theme with
+ * the same name as the hook_elements key.
+ *
+ * Autocomplete_path is not used by text_widget but other widgets can use it
+ * (see nodereference and userreference).
+ */
+function golf_course_rates_elements() {
+
+  $elements = array(
+    'golf_course_rates' => array(
+      '#input'   => TRUE,
+      '#process' => array('golf_course_rates_process')
+    )
+  );
+
+  return $elements;
+
+}
+
+/**
+ * Implementation of hook_widget_info().
+ *
+ * Here we indicate that the content module will handle
+ * the default value and multiple values for these widgets.
+ *
+ * Callbacks can be omitted if default handing is used.
+ * They're included here just so this module can be used
+ * as an example for custom modules that might do things
+ * differently.
+ */
+function golf_course_rates_widget_info() {
+
+  return array(
+    'golf_course_rates' => array(
+      'label'           => 'Golf Course Rate Field',
+      'field types'     => array('golf_course_rates'),
+      'multiple values' => CONTENT_HANDLE_CORE
+    )
+  );
+
+}
+
+/**
+ * Implementation of hook_widget().
+ *
+ * Attach a single form element to the form. It will be built out and
+ * validated in the callback(s) listed in hook_elements. We build it
+ * out in the callbacks rather than here in hook_widget so it can be
+ * plugged into any module that can provide it with valid
+ * $field information.
+ *
+ * Content module will set the weight, field name and delta values
+ * for each form element. This is a change from earlier CCK versions
+ * where the widget managed its own multiple values.
+ *
+ * If there are multiple values for this field, the content module will
+ * call this function as many times as needed.
+ *
+ * @param $form
+ *   the entire form array, $form['#node'] holds node information
+ * @param $form_state
+ *   the form_state, $form_state['values'][$field['field_name']]
+ *   holds the field's form values.
+ * @param $field
+ *   the field array
+ * @param $items
+ *   array of default values for this field
+ * @param $delta
+ *   the order of this item in the array of subelements (0, 1, 2, etc)
+ *
+ * @return
+ *   the form item for a single element for this field
+ */
+function golf_course_rates_widget( &$form, &$form_state, $field, $items, $delta = 0 ) {
+
+  $element = array(
+    '#type'          => $field['widget']['type'],
+    '#default_value' => isset( $items[$delta] ) ? $items[$delta] : '',
+    '#title'         => $field['widget']['label'],
+    '#field'         => $field,
+  );
+
+  return $element;
+
+}
+
+/**
+ * Process an individual element.
+ *
+ * Build the form element. When creating a form using FAPI #process,
+ * note that $element['#value'] is already set.
+ *
+ * The $fields array is in $form['#field_info'][$element['#field_name']].
+ *
+ * @todo = figure out why when you set a default value in the form, it is nt populating properly
+ */
+function golf_course_rates_process( $element, $edit, $form_state, $form ) {
+
+  //Form CSS
+  drupal_add_css( GOLF_COURSE_RATES_MODULE_PATH . '/css/form.css' );
+
+  $element['date_range'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Date Range'),
+    '#maxlength'     => 12,
+    '#default_value' => isset( $element['#value']['date_range'] ) ? $element['#value']['date_range'] : NULL,
+    '#attributes'    => array( 'class' => 'golf-course-rate-widget-date-range' )
+  );
+
+  $element['rate'] = array(
+    '#type'          => 'textfield',
+    '#title'         => t('Rate'),
+    '#maxlength'     => 12,
+    '#default_value' => isset( $element['#value']['rate'] ) ? $element['#value']['rate'] : NULL,
+    '#attributes'    => array( 'class' => 'golf-course-rate-widget-rate' )
+  );
+
+  return $element;
+
+}

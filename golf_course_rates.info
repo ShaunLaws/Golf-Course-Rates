@@ -1,0 +1,6 @@
+name           = Golf Course Rates
+description    = Allows Users To create Flexible Golf Course Rates from a custom CCK widget.
+version        = 1.0
+dependencies[] = content
+package        = CCK
+core           = 6.x
