@@ -5,7 +5,7 @@
 form#node-form div.golf-course-rates-widget {
   border-bottom: 1px #CCC solid;
   margin-bottom: 5px;
-  min-height:140px;
+  min-height:80px;
 }
 
 form#node-form div.golf-course-rates-widget .form-item {
