@@ -25,4 +25,5 @@ form#node-form h4.golf-course-rates-widget-title {
 form#node-form input.golf-course-rate-widget-date-range,
 form#node-form input.golf-course-rate-widget-rate {
   width:100px !important;
+  max-width:100px !important;
 }
